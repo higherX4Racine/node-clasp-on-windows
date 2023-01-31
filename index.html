@@ -1,15 +1,19 @@
 <script type="module">
-    import { createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+    import { createApp, ref, reactive } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
 
     createApp({
         setup() {
+            const counter = reactive({ count: 0});
+            const message = ref("Hello, world!");
             return {
-
-            }
+                counter,
+                message
+            };
         }
     }).mount("#app")
 </script>
 
 <div id="app">
-    <h1>Make me dynamic</h1>
+    <h1>{{ message }}</h1>
+    <p>count is: {{ counter.count }}</p>
 </div>
