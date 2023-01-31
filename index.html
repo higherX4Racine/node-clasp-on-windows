@@ -15,12 +15,15 @@
                 counter.value--;
             };
 
+            const text = ref("");
+    
             return {
                 counter,
                 message,
                 titleClass,
                 increment,
-                decrement
+                decrement,
+                text
             };
         }
     }).mount("#app")
@@ -34,9 +37,17 @@
 
 <div id="app">
     <h1 :class="titleClass">{{ message }}</h1>
-    <span>
-        <button @click="increment">Increase</button>
-        <button @click="decrement">Decrease</button>
-    </span>
-    <p>count is: {{ counter }}</p>
+    <div>
+        <h2>A counter</h2>
+        <span>
+            <button @click="increment">Increase</button>
+            <button @click="decrement">Decrease</button>
+        </span>
+        <p>count is: {{ counter }}</p>
+    </div>
+    <div>
+        <h2>A text input</h2>
+        <input v-model="text" placeholder="Type here, please.">
+        <p>{{ text }}</p>
+    </div>
 </div>
