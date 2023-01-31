@@ -17,13 +17,20 @@
 
             const text = ref("");
     
+            const affirm = ref(false);
+            function toggle(e) {
+                affirm.value = !affirm.value;
+            }
+
             return {
                 counter,
                 message,
                 titleClass,
                 increment,
                 decrement,
-                text
+                text,
+                affirm,
+                toggle
             };
         }
     }).mount("#app")
@@ -37,7 +44,7 @@
 
 <div id="app">
     <h1 :class="titleClass">{{ message }}</h1>
-    <div>
+    <div id="counter">
         <h2>A counter</h2>
         <span>
             <button @click="increment">Increase</button>
@@ -45,9 +52,15 @@
         </span>
         <p>count is: {{ counter }}</p>
     </div>
-    <div>
+    <div id="text-model">
         <h2>A text input</h2>
         <input v-model="text" placeholder="Type here, please.">
         <p>{{ text }}</p>
+    </div>
+    <div id="toggle-if">
+        <h2>A toggle button</h2>
+        <button @click="toggle">{{ affirm ? "de" : "" }}activate</button>
+        <h3 v-if="affirm">The toggle is on.</h3>
+        <h3 v-else=>The toggle is off.</h3>
     </div>
 </div>
