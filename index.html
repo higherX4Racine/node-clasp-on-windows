@@ -5,15 +5,17 @@
         setup() {
             const counter = reactive({ count: 0});
             const message = ref("Hello, world!");
+            const titleClass = ref("title");
             return {
                 counter,
-                message
+                message,
+                titleClass
             };
         }
     }).mount("#app")
 </script>
 
 <div id="app">
-    <h1>{{ message }}</h1>
+    <h1 :id="dynamicId">{{ message }}</h1>
     <p>count is: {{ counter.count }}</p>
 </div>
