@@ -3,7 +3,7 @@
 
     createApp({
         setup() {
-            const counter = reactive({ count: 0});
+            const counter = reactive({ count: 0 });
             const message = ref("Hello, world!");
             const titleClass = ref("title");
             return {
@@ -14,6 +14,12 @@
         }
     }).mount("#app")
 </script>
+
+<style>
+    .title {
+        color: red;
+    }
+</style>
 
 <div id="app">
     <h1 :id="dynamicId">{{ message }}</h1>
