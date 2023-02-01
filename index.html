@@ -1,15 +1,22 @@
 <script type="module">
-    import { computed, createApp, onMounted, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+    import {
+        computed,
+        createApp,
+        onMounted,
+        onBeforeMount,
+        ref,
+        watch
+    } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
     createApp({
         setup() {
             // a reference to an element in the DOM
             const message = ref(null);
-            
-            onMounted(()=>{
+
+            onMounted(() => {
                 message.value.textContent = "Hello, World!";
-            })
-            
+            });
+
             // a counter modifiable by buttons
             const counter = ref(0);
 
@@ -71,6 +78,32 @@
                 "Integrate them"
             ].map(addTodo);
 
+            // a drop-down that shows the values of script properties
+
+            const propertyKeys = ref([]);
+
+            onBeforeMount(() => {
+                google.script.run
+                    .withSuccessHandler((array) => {
+                        propertyKeys.value = array;
+                    })
+                    .getPropertyKeys();
+            });
+
+            const activeKey = ref('');
+            const activeProperty = ref('');
+
+            watch(activeKey, (newKey) => {
+                google.script.run
+                    .withSuccessHandler((property) => {
+                        activeProperty.value = property;
+                    })
+                    .withFailureHandler(() => {
+                        activeProperty.value = `"${newKey}" is an invalid key!`;
+                    })
+                    .getProperty(newKey);
+            });
+
             return {
                 counter,
                 message,
@@ -86,7 +119,10 @@
                 visibleTodos,
                 newTodo,
                 addTodo,
-                removeTodo
+                removeTodo,
+                propertyKeys,
+                activeKey,
+                activeProperty
             };
         }
     }).mount("#app")
@@ -143,5 +179,12 @@
         <button @click="hideCompleted = !hideCompleted">
             {{ hideCompleted ? 'Show all' : 'Hide completed' }}
         </button>
+    </div>
+    <div id="property-choice">
+        <h2>A select control for choosing which script property to view.</h2>
+        <select v-model="activeKey">
+            <option v-for="key in propertyKeys">{{key}}</option>
+        </select>
+        <p>{{activeProperty}}</p>
     </div>
 </div>
