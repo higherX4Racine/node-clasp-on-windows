@@ -8,7 +8,14 @@
         watch
     } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
+    const ChildComp = {
+        template: `<h2>A Child Component!</h2>`
+    };
+
     createApp({
+        components: {
+            ChildComp
+        },
         setup() {
             // a reference to an element in the DOM
             const message = ref(null);
@@ -186,5 +193,8 @@
             <option v-for="key in propertyKeys">{{key}}</option>
         </select>
         <p>{{activeProperty}}</p>
+    </div>
+    <div id="a primordial child component">
+        <child-comp></child-comp>
     </div>
 </div>
