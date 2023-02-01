@@ -1,5 +1,5 @@
 <script type="module">
-    import { createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+    import { computed, createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
     createApp({
         setup() {
@@ -31,26 +31,40 @@
             // a to-do list that demonstrates for behavior
             let id = 0;
 
+            const todos = ref([]);
+
             const newTodo = ref("");
 
-            const todos = ref([
-                { id: id++, text: "Learn Google Apps Script" },
-                { id: id++, text: "Learn Vue" },
-                { id: id++, text: "Integrate them" }
-            ])
+            const hideCompleted = ref(false);
 
-            function addTodo(e) {
+            const filteredTodos = computed(() => {
+                if( hideCompleted.value) {
+                    return todos.value.filter((item) => !item.done);
+                }
+                return todos.value;
+            });
+
+            function addTodo(todoText) {
                 todos.value.push({
-                    id: id++, text: newTodo
+                    id: id++,
+                    text: todoText,
+                    done: false
                 });
-            }
+            };
 
             function removeTodo(todo) {
                 todos.value.splice(
                     todos.value.indexOf(todo),
                     1
                 );
-            }
+            };
+
+            [
+                "Learn Google Apps Script",
+                "Learn Vue",
+                "Integrate them"
+            ].map(addTodo);
+
             return {
                 counter,
                 message,
@@ -60,8 +74,10 @@
                 modelText,
                 affirm,
                 toggle,
-                newTodo,
                 todos,
+                newTodo,
+                hideCompleted,
+                filteredTodos,
                 addTodo,
                 removeTodo
             };
@@ -72,6 +88,14 @@
 <style>
     .title {
         color: #012288;
+    }
+
+    .delete-remove {
+        color: #ff1111;
+    }
+
+    .done {
+        text-decoration: line-through;
     }
 </style>
 
@@ -92,21 +116,25 @@
     </div>
     <div id="toggle-if">
         <h2>A toggle button</h2>
-        <button @click="toggle">{{ affirm ? "de" : "" }}activate</button>
+        <button @click="toggle">{{ affirm ? "deactivate" : "activate" }}</button>
         <h3 v-if="affirm">The toggle is on.</h3>
         <h3 v-else=>The toggle is off.</h3>
     </div>
     <div id="todo-list">
         <h2>A to-do list</h2>
-        <form @submit.prevent="addTodo">
+        <form @submit.prevent="addTodo(newTodo)">
             <input v-model="newTodo">
             <button>Add To-do</button>
         </form>
         <ul>
-            <li v-for="todo in todos" :key="todo.id">
-                {{ todo.text }}
-                <button @click="removeTodo(todo)">u'E2'</button>
+            <li v-for="todo in filteredTodos" :key="todo.id">
+                <input type="checkbox" v-model="todo.done">
+                <span :class="{ done: todo.done }">{{ todo.text }}</span>
+                <button @click="removeTodo(todo)" class="delete-remove">X</button>
             </li>
         </ul>
+        <button @click="hideCompleted = !hideCompleted">
+            {{ hideCompleted ? 'Show all' : 'Hide completed' }}
+        </button>
     </div>
 </div>
