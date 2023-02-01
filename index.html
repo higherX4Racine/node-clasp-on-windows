@@ -3,8 +3,11 @@
 
     createApp({
         setup() {
+            // a counter modifiable by buttons
             const counter = ref(0);
+
             const message = ref("Hello, world!");
+
             const titleClass = ref("title");
 
             function increment(e) {
@@ -15,22 +18,52 @@
                 counter.value--;
             };
 
-            const text = ref("");
-    
+            // a paragraph element connected to a text input
+            const modelText = ref("");
+
+            // a toggle button for demonstrating if-else behavior
             const affirm = ref(false);
+
             function toggle(e) {
                 affirm.value = !affirm.value;
             }
 
+            // a to-do list that demonstrates for behavior
+            let id = 0;
+
+            const newTodo = ref("");
+
+            const todos = ref([
+                { id: id++, text: "Learn Google Apps Script" },
+                { id: id++, text: "Learn Vue" },
+                { id: id++, text: "Integrate them" }
+            ])
+
+            function addTodo(e) {
+                todos.value.push({
+                    id: id++, text: newTodo
+                });
+            }
+
+            function removeTodo(todo) {
+                todos.value.splice(
+                    todos.value.indexOf(todo),
+                    1
+                );
+            }
             return {
                 counter,
                 message,
                 titleClass,
                 increment,
                 decrement,
-                text,
+                modelText,
                 affirm,
-                toggle
+                toggle,
+                newTodo,
+                todos,
+                addTodo,
+                removeTodo
             };
         }
     }).mount("#app")
@@ -54,13 +87,26 @@
     </div>
     <div id="text-model">
         <h2>A text input</h2>
-        <input v-model="text" placeholder="Type here, please.">
-        <p>{{ text }}</p>
+        <input v-model="modelText" placeholder="Type here, please.">
+        <p>{{ modelText }}</p>
     </div>
     <div id="toggle-if">
         <h2>A toggle button</h2>
         <button @click="toggle">{{ affirm ? "de" : "" }}activate</button>
         <h3 v-if="affirm">The toggle is on.</h3>
         <h3 v-else=>The toggle is off.</h3>
+    </div>
+    <div id="todo-list">
+        <h2>A to-do list</h2>
+        <form @submit.prevent="addTodo">
+            <input v-model="newTodo">
+            <button>Add To-do</button>
+        </form>
+        <ul>
+            <li v-for="todo in todos" :key="todo.id">
+                {{ todo.text }}
+                <button @click="removeTodo(todo)">u'E2'</button>
+            </li>
+        </ul>
     </div>
 </div>
