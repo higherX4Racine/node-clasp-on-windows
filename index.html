@@ -1,12 +1,17 @@
 <script type="module">
-    import { computed, createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+    import { computed, createApp, onMounted, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
     createApp({
         setup() {
+            // a reference to an element in the DOM
+            const message = ref(null);
+            
+            onMounted(()=>{
+                message.value.textContent = "Hello, World!";
+            })
+            
             // a counter modifiable by buttons
             const counter = ref(0);
-
-            const message = ref("Hello, world!");
 
             const titleClass = ref("title");
 
@@ -31,21 +36,22 @@
             // a to-do list that demonstrates for behavior
             let id = 0;
 
-            const todos = ref([]);
+            const hideCompleted = ref(false);
+
+            const allTodos = ref([]);
+
+            const filteredTodos = computed(() => {
+                return allTodos.value.filter((item) => !item.done);
+            });
+
+            const visibleTodos = computed(() =>
+                hideCompleted.value ? filteredTodos.value : allTodos.value
+            );
 
             const newTodo = ref("");
 
-            const hideCompleted = ref(false);
-
-            const filteredTodos = computed(() => {
-                if( hideCompleted.value) {
-                    return todos.value.filter((item) => !item.done);
-                }
-                return todos.value;
-            });
-
             function addTodo(todoText) {
-                todos.value.push({
+                allTodos.value.push({
                     id: id++,
                     text: todoText,
                     done: false
@@ -53,8 +59,8 @@
             };
 
             function removeTodo(todo) {
-                todos.value.splice(
-                    todos.value.indexOf(todo),
+                allTodos.value.splice(
+                    allTodos.value.indexOf(todo),
                     1
                 );
             };
@@ -74,10 +80,11 @@
                 modelText,
                 affirm,
                 toggle,
-                todos,
-                newTodo,
                 hideCompleted,
+                allTodos,
                 filteredTodos,
+                visibleTodos,
+                newTodo,
                 addTodo,
                 removeTodo
             };
@@ -100,12 +107,12 @@
 </style>
 
 <div id="app">
-    <h1 :class="titleClass">{{ message }}</h1>
+    <h1 ref="message" :class="titleClass">Still, loading.</h1>
     <div id="counter">
         <h2>A counter</h2>
         <span>
-            <button @click="increment">Increase</button>
-            <button @click="decrement">Decrease</button>
+            <button @click="increment">+</button>
+            <button @click="decrement">-</button>
         </span>
         <p>count is: {{ counter }}</p>
     </div>
@@ -121,13 +128,13 @@
         <h3 v-else=>The toggle is off.</h3>
     </div>
     <div id="todo-list">
-        <h2>A to-do list</h2>
+        <h2>A to-do list with {{filteredTodos.length}} {{filteredTodos.length == 1 ? "item" : "items"}}</h2>
         <form @submit.prevent="addTodo(newTodo)">
             <input v-model="newTodo">
             <button>Add To-do</button>
         </form>
         <ul>
-            <li v-for="todo in filteredTodos" :key="todo.id">
+            <li v-for="todo in visibleTodos" :key="todo.id">
                 <input type="checkbox" v-model="todo.done">
                 <span :class="{ done: todo.done }">{{ todo.text }}</span>
                 <button @click="removeTodo(todo)" class="delete-remove">X</button>
