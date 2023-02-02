@@ -1,13 +1,11 @@
 
 function doGet(request) {
-  return HtmlService.createHtmlOutputFromFile("index");
+  return HtmlService
+    .createTemplateFromFile("index")
+    .evaluate();
 }
 
-function getProperty(key){
+function getProperty(key) {
   const scriptProperties = PropertiesService.getScriptProperties();
   return scriptProperties.getProperty(key);
-}
-
-function getPropertyKeys(){
-  return PropertiesService.getScriptProperties().getKeys();
 }

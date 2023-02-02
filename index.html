@@ -8,49 +8,48 @@
         watch
     } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
-    const ChildComp = {
-        template: `<h2>A Child Component!</h2>`
-    };
-
-    createApp({
-        components: {
-            ChildComp
+    const CounterComponent = {
+        props: {
+            title: String,
+            initialCount: Number
         },
-        setup() {
-            // a reference to an element in the DOM
-            const message = ref(null);
-
-            onMounted(() => {
-                message.value.textContent = "Hello, World!";
-            });
-
+        setup(props) {
             // a counter modifiable by buttons
-            const counter = ref(0);
-
-            const titleClass = ref("title");
+            const amount = ref(props.initialCount);
 
             function increment(e) {
-                counter.value++;
+                amount.value++;
             };
 
             function decrement(e) {
-                counter.value--;
+                amount.value--;
             };
 
-            // a paragraph element connected to a text input
-            const modelText = ref("");
+            return {
+                amount,
+                increment,
+                decrement
+            };
+        },
+        template: `
+            <h2>{{ title }}</h2>
+            <span>
+                <button @click="increment">+</button>
+                <button @click="decrement">-</button>
+            </span>
+            <p>count is: {{ amount }}</p>
+        `
+    };
 
-            // a toggle button for demonstrating if-else behavior
-            const affirm = ref(false);
-
-            function toggle(e) {
-                affirm.value = !affirm.value;
-            }
-
+    const ToDoListComponent = {
+        props: {
+            initiallyHidden: Boolean
+        },
+        setup(props) {
             // a to-do list that demonstrates for behavior
             let id = 0;
 
-            const hideCompleted = ref(false);
+            const hideCompleted = ref(props.initiallyHidden);
 
             const allTodos = ref([]);
 
@@ -85,17 +84,43 @@
                 "Integrate them"
             ].map(addTodo);
 
+            return {
+                hideCompleted,
+                allTodos,
+                filteredTodos,
+                visibleTodos,
+                newTodo,
+                addTodo,
+                removeTodo
+            };
+        },
+        template: `
+            <h2>A to-do list with {{filteredTodos.length}} {{filteredTodos.length == 1 ? "item" : "items"}}</h2>
+            <form @submit.prevent="addTodo(newTodo)">
+                <input v-model="newTodo">
+                <button>Add To-do</button>
+            </form>
+            <ul>
+                <li v-for="todo in visibleTodos" :key="todo.id">
+                    <input type="checkbox" v-model="todo.done">
+                    <span :class="{ done: todo.done }">{{ todo.text }}</span>
+                    <button @click="removeTodo(todo)" class="delete-remove">X</button>
+                </li>
+            </ul>
+            <button @click="hideCompleted = !hideCompleted">
+                {{ hideCompleted ? 'Show all' : 'Hide completed' }}
+            </button>
+        `
+    };
+
+    const PropertySelectorComponent = {
+        props: {
+
+        },
+        setup(props) {
             // a drop-down that shows the values of script properties
 
-            const propertyKeys = ref([]);
-
-            onBeforeMount(() => {
-                google.script.run
-                    .withSuccessHandler((array) => {
-                        propertyKeys.value = array;
-                    })
-                    .getPropertyKeys();
-            });
+            const propertyKeys = ref(<?!= JSON.stringify(PropertiesService.getScriptProperties().getKeys()) ?>);
 
             const activeKey = ref('');
             const activeProperty = ref('');
@@ -112,24 +137,52 @@
             });
 
             return {
-                counter,
-                message,
-                titleClass,
-                increment,
-                decrement,
-                modelText,
-                affirm,
-                toggle,
-                hideCompleted,
-                allTodos,
-                filteredTodos,
-                visibleTodos,
-                newTodo,
-                addTodo,
-                removeTodo,
                 propertyKeys,
                 activeKey,
                 activeProperty
+            };
+        },
+        template: `
+            <h2>A select control for choosing which script property to view.</h2>
+            <select v-model="activeKey">
+                <option v-for="key in propertyKeys">{{key}}</option>
+            </select>
+            <p>{{activeProperty}}</p>
+        `
+    };
+
+    createApp({
+        components: {
+            CounterComponent,
+            ToDoListComponent,
+            PropertySelectorComponent
+        },
+        setup() {
+            // a reference to an element in the DOM
+            const message = ref(null);
+
+            const titleClass = ref("title");
+
+            onMounted(() => {
+                message.value.textContent = "Hello, World!";
+            });
+
+            // a paragraph element connected to a text input
+            const modelText = ref("");
+
+            // a toggle button for demonstrating if-else behavior
+            const affirm = ref(false);
+
+            function toggle(e) {
+                affirm.value = !affirm.value;
+            }
+
+            return {
+                message,
+                titleClass,
+                modelText,
+                affirm,
+                toggle
             };
         }
     }).mount("#app")
@@ -151,13 +204,8 @@
 
 <div id="app">
     <h1 ref="message" :class="titleClass">Still, loading.</h1>
-    <div id="counter">
-        <h2>A counter</h2>
-        <span>
-            <button @click="increment">+</button>
-            <button @click="decrement">-</button>
-        </span>
-        <p>count is: {{ counter }}</p>
+    <div id="a-counter">
+        <counter-component title="A counter" initial-count="42"></counter-component>
     </div>
     <div id="text-model">
         <h2>A text input</h2>
@@ -171,30 +219,9 @@
         <h3 v-else=>The toggle is off.</h3>
     </div>
     <div id="todo-list">
-        <h2>A to-do list with {{filteredTodos.length}} {{filteredTodos.length == 1 ? "item" : "items"}}</h2>
-        <form @submit.prevent="addTodo(newTodo)">
-            <input v-model="newTodo">
-            <button>Add To-do</button>
-        </form>
-        <ul>
-            <li v-for="todo in visibleTodos" :key="todo.id">
-                <input type="checkbox" v-model="todo.done">
-                <span :class="{ done: todo.done }">{{ todo.text }}</span>
-                <button @click="removeTodo(todo)" class="delete-remove">X</button>
-            </li>
-        </ul>
-        <button @click="hideCompleted = !hideCompleted">
-            {{ hideCompleted ? 'Show all' : 'Hide completed' }}
-        </button>
+        <to-do-list-component initially-hidden="false"></to-do-list-component>
     </div>
     <div id="property-choice">
-        <h2>A select control for choosing which script property to view.</h2>
-        <select v-model="activeKey">
-            <option v-for="key in propertyKeys">{{key}}</option>
-        </select>
-        <p>{{activeProperty}}</p>
-    </div>
-    <div id="a primordial child component">
-        <child-comp></child-comp>
+        <property-selector-component></property-selector-component>
     </div>
 </div>
