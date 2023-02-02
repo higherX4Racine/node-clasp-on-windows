@@ -108,7 +108,7 @@
                 </li>
             </ul>
             <button @click="hideCompleted = !hideCompleted">
-                {{ hideCompleted ? 'Show all' : 'Hide completed' }}
+                {{ hideCompleted ? "Show all" : "Hide completed" }}
             </button>
         `
     };
@@ -122,8 +122,8 @@
 
             const propertyKeys = ref(<?!= JSON.stringify(PropertiesService.getScriptProperties().getKeys()) ?>);
 
-            const activeKey = ref('');
-            const activeProperty = ref('');
+            const activeKey = ref("");
+            const activeProperty = ref("");
 
             watch(activeKey, (newKey) => {
                 google.script.run
@@ -151,11 +151,25 @@
         `
     };
 
+    const EmittingComponent = {
+        emits: ["emission"],
+        props: {
+            greeting: String
+        },
+        setup(props, { emit }) {
+            emit("emission", `${props.greeting} ${props.greeting} ${props.greeting}`)
+        },
+        template: `
+            <p>{{greeting}}</p>
+        `
+    };
+
     createApp({
         components: {
             CounterComponent,
             ToDoListComponent,
-            PropertySelectorComponent
+            PropertySelectorComponent,
+            EmittingComponent
         },
         setup() {
             // a reference to an element in the DOM
@@ -177,12 +191,20 @@
                 affirm.value = !affirm.value;
             }
 
+            // capture the response of an emitting component
+            const emittedText = ref("no emissions here...");
+            function onEmission(txt) {
+                emittedText.value = txt
+            }
+
             return {
                 message,
                 titleClass,
                 modelText,
                 affirm,
-                toggle
+                toggle,
+                emittedText,
+                onEmission
             };
         }
     }).mount("#app")
@@ -223,5 +245,10 @@
     </div>
     <div id="property-choice">
         <property-selector-component></property-selector-component>
+    </div>
+    <div id="emitting-child">
+        <h2>An Event-emitting Component</h2>
+        <emitting-component greeting="howdy" @emission="onEmission"></emitting-component>
+        {{ emittedText }}
     </div>
 </div>
