@@ -43,7 +43,8 @@
 
     const ToDoListComponent = {
         props: {
-            initiallyHidden: Boolean
+            initiallyHidden: Boolean,
+            initialValues: Array
         },
         setup(props) {
             // a to-do list that demonstrates for behavior
@@ -78,11 +79,7 @@
                 );
             };
 
-            [
-                "Learn Google Apps Script",
-                "Learn Vue",
-                "Integrate them"
-            ].map(addTodo);
+            props.initialValues.map(addTodo);
 
             return {
                 hideCompleted,
@@ -229,7 +226,8 @@
 <div id="app">
     <h1 ref="message" :class="titleClass">Still, loading.</h1>
     <div id="a-counter">
-        <counter-component title="A counter" initial-count="42" />
+        <counter-component title="A counter" :initial-count="42">
+        </counter-component>
     </div>
     <div id="text-model">
         <h2>A text input</h2>
@@ -243,14 +241,19 @@
         <h3 v-else=>The toggle is off.</h3>
     </div>
     <div id="todo-list">
-        <to-do-list-component initially-hidden="false" />
+        <to-do-list-component :initially-hidden="false"
+            :initial-values="['Learn Google Apps Script', 'Learn Vue','Integrate them']">
+        </to-do-list-component>
     </div>
     <div id="property-choice">
-        <property-selector-component>Property Chooser</property-selector-component>
+        <property-selector-component>
+            Property Chooser
+        </property-selector-component>
     </div>
     <div id="emitting-child">
         <h2>An Event-emitting Component</h2>
-        <emitting-component greeting="howdy" @emission="onEmission"></emitting-component>
+        <emitting-component greeting="howdy" @emission="onEmission">
+        </emitting-component>
         {{ emittedText }}
     </div>
 </div>
